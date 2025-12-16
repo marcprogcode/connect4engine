@@ -1,19 +1,58 @@
-// connect4engine.cpp : Este archivo contiene la función "main". La ejecución del programa comienza y termina ahí.
-//
-
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include "tauler.h"
+#include "ia.h"
 
-int main()
-{
-    std::cout << "Hello World!\n";
+using namespace std;
+
+int main() {
+    char tauler[FILES][COLUMNES];
+    bool finalPartida = false;
+    char guanyador = ' ';
+
+    srand(time(NULL));
+
+    inicialitzarTauler(tauler, FILES, COLUMNES);
+
+    cout << "=== JOC 4 EN LINIA ===" << endl;
+    mostrarTauler(tauler, FILES, COLUMNES);
+
+    while (!finalPartida) {
+        jugarTorn(tauler, FILES, COLUMNES, JUGADOR);
+
+        if (haGuanyat(tauler, FILES, COLUMNES, JUGADOR)) {
+            finalPartida = true;
+            guanyador = JUGADOR;
+        }
+        else if (taulerPle(tauler, FILES, COLUMNES)) {
+            finalPartida = true;
+        }
+        else {
+            cout << "Torn de la Maquina (" << IA << ")..." << endl;
+            int colIA = triarColumnaIA(tauler, FILES, COLUMNES, IA, JUGADOR);
+            ferMoviment(tauler, FILES, COLUMNES, colIA, IA);
+            mostrarTauler(tauler, FILES, COLUMNES);
+
+            if (haGuanyat(tauler, FILES, COLUMNES, IA)) {
+                finalPartida = true;
+                guanyador = IA;
+            }
+            else if (taulerPle(tauler, FILES, COLUMNES)) {
+                finalPartida = true;
+            }
+        }
+    }
+
+    if (guanyador == JUGADOR) {
+        cout << "Victoria jugador " << JUGADOR << endl;
+    }
+    else if (guanyador == IA) {
+        cout << "Victoria jugador " << IA << endl;
+    }
+    else {
+        cout << "Taules" << endl;
+    }
+
+    return 0;
 }
-
-// Ejecutar programa: Ctrl + F5 o menú Depurar > Iniciar sin depurar
-// Depurar programa: F5 o menú Depurar > Iniciar depuración
-
-// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
-//   2. Use la ventana de Team Explorer para conectar con el control de código fuente
-//   3. Use la ventana de salida para ver la salida de compilación y otros mensajes
-//   4. Use la ventana Lista de errores para ver los errores
-//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de código, o a Proyecto > Agregar elemento existente para agregar archivos de código existentes al proyecto
-//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln

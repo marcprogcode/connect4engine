@@ -124,6 +124,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="connect4engine.cpp" />
+    <ClCompile Include="ia.cpp" />
+    <ClCompile Include="tauler.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ia.h" />
+    <ClInclude Include="tauler.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
