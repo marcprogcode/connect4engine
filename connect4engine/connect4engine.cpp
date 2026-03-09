@@ -1,6 +1,16 @@
+/**
+ * @file connect4engine.cpp
+ * @author Marc
+ * @brief Main entry point for the Connect 4 TUI.
+ * 
+ * @copyright Copyright (c) 2026
+ * 
+ * This project is licensed under the MIT License.
+ */
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cstdint>
 #include "tauler.h"
 #include "ia.h"
 
@@ -11,47 +21,51 @@ int main() {
     bool finalPartida = false;
     char guanyador = ' ';
 
-    srand(time(NULL));
+    srand(static_cast<unsigned int>(time(NULL)));
 
-    inicialitzarTauler(tauler, FILES, COLUMNES);
+    vbr::inicialitzarTauler(tauler, FILES, COLUMNES);
 
-    cout << "=== JOC 4 EN LINIA ===" << endl;
-    mostrarTauler(tauler, FILES, COLUMNES);
+    cout << "=== CONNECT 4 GAME ===" << endl;
+    vbr::mostrarTauler(tauler, FILES, COLUMNES);
 
     while (!finalPartida) {
-        jugarTorn(tauler, FILES, COLUMNES, JUGADOR);
+        vbr::jugarTorn(tauler, FILES, COLUMNES, JUGADOR);
 
-        if (haGuanyat(tauler, FILES, COLUMNES, JUGADOR)) {
+        if (vbr::haGuanyat(tauler, FILES, COLUMNES, JUGADOR)) {
             finalPartida = true;
             guanyador = JUGADOR;
         }
-        else if (taulerPle(tauler, FILES, COLUMNES)) {
+        else if (vbr::taulerPle(tauler, FILES, COLUMNES)) {
             finalPartida = true;
         }
         else {
-            cout << "Torn de la Maquina (" << IA << ")..." << endl;
-            int colIA = triarColumnaIA(tauler, FILES, COLUMNES, IA, JUGADOR);
-            ferMoviment(tauler, FILES, COLUMNES, colIA, IA);
-            mostrarTauler(tauler, FILES, COLUMNES);
+            cout << "AI Turn (" << IA << ")..." << endl;
+            uint64_t pos, mask;
+            bbr::boardToBit(tauler, pos, mask);
+            // boardToBit puts X's stones in pos, but AI is O.
+            // negamax expects pos = current player's stones, so flip to O's perspective.
+            int colIA = triarColumnaIA(mask ^ pos, mask, 42, 4000);
+            vbr::ferMoviment(tauler, FILES, COLUMNES, colIA + 1, IA);
+            vbr::mostrarTauler(tauler, FILES, COLUMNES);
 
-            if (haGuanyat(tauler, FILES, COLUMNES, IA)) {
+            if (vbr::haGuanyat(tauler, FILES, COLUMNES, IA)) {
                 finalPartida = true;
                 guanyador = IA;
             }
-            else if (taulerPle(tauler, FILES, COLUMNES)) {
+            else if (vbr::taulerPle(tauler, FILES, COLUMNES)) {
                 finalPartida = true;
             }
         }
     }
 
     if (guanyador == JUGADOR) {
-        cout << "Victoria jugador " << JUGADOR << endl;
+        cout << "Player " << JUGADOR << " wins!" << endl;
     }
     else if (guanyador == IA) {
-        cout << "Victoria jugador " << IA << endl;
+        cout << "Player " << IA << " wins!" << endl;
     }
     else {
-        cout << "Taules" << endl;
+        cout << "Draw" << endl;
     }
 
     return 0;

@@ -1,30 +1,131 @@
+<div align="center">
+
 # connect4engine
-## Intro
-This project implements a Connect 4 engine using a command-line interface. The two main objectives for the program were:
-*   Beat the average human player consistently.
-*   Run in real-time (under 5 seconds per move).
 
-## How to Run
-1.  Clone this repository.
-2.  Open the project folder or solution file in **Visual Studio**.
-3.  Build and Run the project (Standard "Start" or `F5`).
+[![C++17](https://img.shields.io/badge/C++-17-blue.svg?style=flat-square)](#)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg?style=flat-square)](#)
+[![Status](https://img.shields.io/badge/status-active-success.svg?style=flat-square)](#)
 
-## Implementation
-To accomplish the project goals, I built a CLI version of Connect 4 that allows a player to input moves, while the AI calculates a response. The AI logic is decoupled from the game board logic:
-*   `tauler.cpp`: Handles the main board logic.
-*   `ia.cpp`: Handles the AI decision-making.
+A highly optimized, bitboard-based Connect 4 artificial intelligence engine written in C++. 
 
-The engine uses a **Negamax** algorithm (a variant of Minimax) to search the decision tree. To evaluate positions efficiently, I implemented simple heuristics:
-1.  **Scoring:** The evaluation function assigns a score from -infinity to +infinity.
-    *   **Win/Loss:** Set to +/- infinity.
-    *   **Draw:** Set to 0.
-    *   **Heuristic:** For non-terminal states, the engine calculates a score based on a precomputed matrix. This matrix weights positions based on how many distinct 4-in-a-row combinations are possible through that specific cell.
-2.  **Alpha-Beta Pruning:** To drastically reduce the search space, the engine filters out branches that are proven to be worse than the current best option.
+Built from the ground up to beat human players and solve positions in real-time limits (under 5 seconds per move). Uses a custom implementation of the **Negamax algorithm**, with alpha-beta pruning, transposition tables, and iterative deepening, as well as a similar to the Universal Chess Interface (UCI) protocol for automated testing and GUI integration.
 
-With this configuration, the engine consistently beats average players at **search depth 9**, taking significantly less than a second to calculate a move on modern hardware.
+<img src="engines/images/demo.gif" alt="Connect 4 Engine Demo" width="600"/>
 
-## Future Improvements
-*   **Bitboards:** Replacing the current matrix representation with two bitboards (one for position, one for mask) would greatly increase search speed and reduce memory usage.
-*   **Dynamic Depth:** Implementing iterative deepening or dynamic depth adjustment based on the number of remaining empty cells.
-*   **Heuristic Tuning:** Balancing complexity vs. accuracy to squeeze out more performance.
-*   **Monte-Carlo Tree Search (MCTS):** While potentially overkill for Connect 4, exploring MCTS would be a valuable educational exercise.
+---
+
+</div>
+
+## ✨ Key Features
+
+- **Fast Bitboards:** 
+  The board state is compactly encoded using two 64-bit integers (position and mask), allowing for fast state updates and O(1) instantaneous win detection using optimized bitwise operations.
+- **Negamax with Alpha-Beta Pruning:** 
+  Drastically scales down the search space by mathematically eliminating branches proven to be suboptimal.
+- **Transposition Tables & Zobrist Hashing:** 
+  Memory-efficient caching of previously evaluated positions, preventing redundant calculations and significantly increasing the effective search depth.
+- **Iterative Deepening:** 
+  Progressively searches deeper and deeper into the game tree, guaranteeing a highly robust move recommendation within strict time controls and significantly upgrading the ordering logic.
+- **Heuristic Move Ordering:** 
+  Evaluates the most promising logical moves first (e.g., center columns prioritization and examining Principal Variation nodes from earlier searches) to hit alpha-beta cutoffs as quickly as possible.
+- **UCI-Compatible Interface Mechanism:** 
+  An adaptation of the standard Universal Chess Interface protocol, permitting flawless integration with GUI systems and sophisticated external testing environments.
+- **Extensive Python Test Harness:** 
+  Includes a feature-rich Python suite designed to run tournaments, test specific engine builds (historic versions), execute benchmarks, and dynamically generate detailed markdown reports profiling AI strength and speed.
+
+---
+
+## 🏗️ Project Structure
+
+```text
+connect4engine/
+├── connect4engine/      # Core C++ engine, game board representation, TUI, and UCI interface mechanisms
+├── tests/               # Python test harness (datasets, tournaments, automated benchmarking and reporting)
+├── engines/             # Executable engine versions mapping the project's historical progression
+├── CMakeLists.txt       # Build system configuration
+└── README.md            
+```
+
+### Architecture Overview
+
+- **`tauler.cpp` / `tauler.h`:** 
+  Encapsulates the board logic, making effective use of the aforementioned dense bitboard mechanics.
+- **`ia.cpp` / `ia.h`:** 
+  Houses the intelligence side of the project—coordinating the Negamax search architecture and iterative deepening control loops.
+- **`transposition_table.cpp`:** 
+  A lockless, robust Zobrist hashing caching layer essential for retaining depth metrics securely.
+- **`uci.cpp`:** 
+  Translates external command pipelines into internal parameters mapped directly to the engine core components.
+- **`tests/`:** 
+  Uses standard datasets to evaluate AI logic progression against test sets consisting of hundreds of specific puzzle scenarios (`run_benchmark.py`).
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- A **C++17** compliant compiler (MSVC, GCC, or Clang)
+- **CMake** (3.10 or higher recommended)
+- **Python 3.8+** (Optional, intended exclusively for running the test harness suite)
+
+### Building the Project
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/marcprogcode/connect4engine.git
+   cd connect4engine
+   ```
+
+2. **Generate build files and compile:**
+   ```bash
+   mkdir build
+   cd build
+   cmake ..
+   
+   # Build the project (Release mode heavily recommended for performance metrics)
+   cmake --build . --config Release
+   ```
+
+### Running the Engine
+
+You can run the engine in two distinct interaction modes:
+
+**1. Interactive CLI (TUI Mode)**
+Test your might and play directly against the AI straight from your terminal:
+```bash
+./Release/connect4engine.exe   # On Windows
+./connect4engine               # On Linux/macOS
+```
+
+**2. UCI Mode**
+Launch the engine strictly for communication via standard I/O (often preferred for bots, debugging pipelines, or advanced API integrations):
+```bash
+./Release/uci.exe              # On Windows
+./uci                          # On Linux/macOS
+```
+
+---
+
+## 📈 Performance & Evolution
+
+The engine has undergone continual benchmarking, currently **solving 87%+ of Connect 4 dataset positions correctly**. It consistently reaches a search depth of **32+ ply in under 30ms** on standard modern PC hardware. 
+
+Over its development lifecycle, this project advanced through 9 major milestone iterations, each progressively layering deeper optimization capabilities on top of base logic constraints. 
+
+For an in-depth analytical breakdown profiling speed adjustments and win rates across versions, consult the full [**Engine Evolution Report**](engines/README.md).
+
+<div align="center">
+  <img src="engines/images/dashboard.png" alt="Engine Evolution Dashboard" width="800"/>
+</div>
+
+---
+
+## 🤝 Contributing & Support
+
+Contributions, issue reports, and major feature requests are completely welcome! Feel free to visit the [Issues Tracking page](https://github.com/marcprogcode/connect4engine/issues) if you spot any bugs or want to implement improvements to the engine functionality.
+
+## 📄 Licensing Information
+
+This engine project is distributed under the terms of the MIT License, granting free usage to all. See the [LICENSE](LICENSE) file for explicit details.
